@@ -25,7 +25,8 @@ func main() {
 		fmt.Println("1. Ajouter un contact")
 		fmt.Println("2. Lister les contacts")
 		fmt.Println("3. Supprimer un contact")
-		fmt.Println("4. Quitter")
+		fmt.Println("4. Mettre à jour un contact")
+		fmt.Println("5. Quitter")
 
 		fmt.Print("Votre choix : ")
 		input, _ := reader.ReadString('\n')
@@ -73,6 +74,37 @@ func main() {
 			}
 
 		case 4:
+			fmt.Print("ID du contact à mettre à jour : ")
+			idInput, _ := reader.ReadString('\n')
+			id, err := strconv.Atoi(strings.TrimSpace(idInput))
+			if err != nil {
+				fmt.Println("Erreur : ID invalide.")
+				continue
+			}
+
+			if contact, ok := contacts[id]; ok {
+				fmt.Printf("Nom actuel : %s | Nouveau nom : ", contact.Nom)
+				newNom, _ := reader.ReadString('\n')
+				newNom = strings.TrimSpace(newNom)
+
+				fmt.Printf("Email actuel : %s | Nouvel email : ", contact.Email)
+				newEmail, _ := reader.ReadString('\n')
+				newEmail = strings.TrimSpace(newEmail)
+
+				if newNom != "" {
+					contact.Nom = newNom
+				}
+				if newEmail != "" {
+					contact.Email = newEmail
+				}
+
+				contacts[id] = contact
+				fmt.Println("Contact mis à jour.")
+			} else {
+				fmt.Println("Aucun contact trouvé avec cet ID.")
+			}
+
+		case 5:
 			fmt.Println("Quitter")
 			return
 
