@@ -27,6 +27,18 @@ func main() {
 			continue
 		}
 
-		fmt.Println("Vous avez choisi :", choix)
+		switch choix {
+		case 1:
+			fmt.Println("Ajouter un contact")
+		case 2:
+			fmt.Println("Lister les contacts")
+		case 3:
+			fmt.Println("Supprimer un contact")
+		case 4:
+			fmt.Println("Quitter")
+			return
+		default:
+			fmt.Println("Choix invalide.")
+		}
 	}
 }
