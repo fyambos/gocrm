@@ -8,7 +8,16 @@ import (
 	"strings"
 )
 
+type Contact struct {
+	ID    int
+	Nom   string
+	Email string
+}
+
 func main() {
+	contacts := make(map[int]Contact)
+	nextID := 1
+
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
@@ -30,8 +39,14 @@ func main() {
 		switch choix {
 		case 1:
 			fmt.Println("Ajouter un contact")
+			contacts[nextID] = Contact{ID: nextID, Nom: "Alice", Email: "alice@mail.com"}
+			fmt.Println("Contact ajouté avec ID", nextID)
+			nextID++
 		case 2:
 			fmt.Println("Lister les contacts")
+			for _, c := range contacts {
+				fmt.Println(c.ID, c.Nom, c.Email)
+			}
 		case 3:
 			fmt.Println("Supprimer un contact")
 		case 4:
