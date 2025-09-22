@@ -57,7 +57,20 @@ func main() {
 			}
 
 		case 3:
-			fmt.Println("Supprimer un contact")
+			fmt.Print("ID du contact à supprimer : ")
+			idInput, _ := reader.ReadString('\n')
+			id, err := strconv.Atoi(strings.TrimSpace(idInput))
+			if err != nil {
+				fmt.Println("Erreur : ID invalide.")
+				continue
+			}
+
+			if _, ok := contacts[id]; ok {
+				delete(contacts, id)
+				fmt.Println("Contact avec ID", id, "supprimé.")
+			} else {
+				fmt.Println("Aucun contact trouvé avec cet ID.")
+			}
 
 		case 4:
 			fmt.Println("Quitter")
