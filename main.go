@@ -1,7 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println("Hello World !")
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Entrez votre nom : ")
+	nom, _ := reader.ReadString('\n')
+	fmt.Println("Bonjour", nom)
 }
