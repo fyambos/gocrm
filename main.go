@@ -14,6 +14,16 @@ type Contact struct {
 	Email string
 }
 
+func NewContact(id int, nom, email string) *Contact {
+	if nom == "" {
+		nom = "Inconnu"
+	}
+	if email == "" {
+		email = "inconnu@example.com"
+	}
+	return &Contact{ID: id, Nom: nom, Email: email}
+}
+
 func (c *Contact) Update(newNom, newEmail string) {
 	if newNom != "" {
 		c.Nom = newNom
@@ -56,7 +66,7 @@ func main() {
 			email, _ := reader.ReadString('\n')
 			email = strings.TrimSpace(email)
 
-			contacts[nextID] = &Contact{ID: nextID, Nom: nom, Email: email}
+			contacts[nextID] = NewContact(nextID, nom, email)
 			fmt.Println("Contact ajouté avec ID", nextID)
 			nextID++
 
