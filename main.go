@@ -15,7 +15,7 @@ type Contact struct {
 }
 
 func main() {
-	contacts := make(map[int]Contact)
+	contacts := make(map[int]*Contact)
 	nextID := 1
 
 	reader := bufio.NewReader(os.Stdin)
@@ -47,7 +47,8 @@ func main() {
 			email, _ := reader.ReadString('\n')
 			email = strings.TrimSpace(email)
 
-			contacts[nextID] = Contact{ID: nextID, Nom: nom, Email: email}
+			// on stocke un pointeur
+			contacts[nextID] = &Contact{ID: nextID, Nom: nom, Email: email}
 			fmt.Println("Contact ajouté avec ID", nextID)
 			nextID++
 
@@ -98,7 +99,6 @@ func main() {
 					contact.Email = newEmail
 				}
 
-				contacts[id] = contact
 				fmt.Println("Contact mis à jour.")
 			} else {
 				fmt.Println("Aucun contact trouvé avec cet ID.")
