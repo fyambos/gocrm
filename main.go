@@ -33,10 +33,50 @@ func (c *Contact) Update(newNom, newEmail string) {
 	}
 }
 
-func main() {
-	contacts := make(map[int]*Contact)
-	nextID := 1
+type Storer interface {
+	Add(nom, email string) *Contact
+	List()
+	Delete(id int)
+}
 
+type MemoryStore struct {
+	contacts map[int]*Contact
+	nextID   int
+}
+
+func NewMemoryStore() *MemoryStore {
+	return &MemoryStore{
+		contacts: make(map[int]*Contact),
+		nextID:   1,
+	}
+}
+
+func (m *MemoryStore) Add(nom, email string) *Contact {
+	contact := NewContact(m.nextID, nom, email)
+	m.contacts[m.nextID] = contact
+	fmt.Println("Contact ajouté avec ID", m.nextID)
+	m.nextID++
+	return contact
+}
+
+func (m *MemoryStore) List() {
+	fmt.Println("Liste des contacts :")
+	for _, c := range m.contacts {
+		fmt.Println(c.ID, c.Nom, c.Email)
+	}
+}
+
+func (m *MemoryStore) Delete(id int) {
+	if _, ok := m.contacts[id]; ok {
+		delete(m.contacts, id)
+		fmt.Println("Contact avec ID", id, "supprimé.")
+	} else {
+		fmt.Println("Aucun contact trouvé avec cet ID.")
+	}
+}
+
+func main() {
+	store := NewMemoryStore()
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
@@ -66,15 +106,10 @@ func main() {
 			email, _ := reader.ReadString('\n')
 			email = strings.TrimSpace(email)
 
-			contacts[nextID] = NewContact(nextID, nom, email)
-			fmt.Println("Contact ajouté avec ID", nextID)
-			nextID++
+			store.Add(nom, email)
 
 		case 2:
-			fmt.Println("Liste des contacts :")
-			for _, c := range contacts {
-				fmt.Println(c.ID, c.Nom, c.Email)
-			}
+			store.List()
 
 		case 3:
 			fmt.Print("ID du contact à supprimer : ")
@@ -84,13 +119,7 @@ func main() {
 				fmt.Println("Erreur : ID invalide.")
 				continue
 			}
-
-			if _, ok := contacts[id]; ok {
-				delete(contacts, id)
-				fmt.Println("Contact avec ID", id, "supprimé.")
-			} else {
-				fmt.Println("Aucun contact trouvé avec cet ID.")
-			}
+			store.Delete(id)
 
 		case 4:
 			fmt.Print("ID du contact à mettre à jour : ")
@@ -101,7 +130,7 @@ func main() {
 				continue
 			}
 
-			if contact, ok := contacts[id]; ok {
+			if contact, ok := store.contacts[id]; ok {
 				fmt.Printf("Nom actuel : %s | Nouveau nom : ", contact.Nom)
 				newNom, _ := reader.ReadString('\n')
 				newNom = strings.TrimSpace(newNom)
