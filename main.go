@@ -14,6 +14,15 @@ type Contact struct {
 	Email string
 }
 
+func (c *Contact) Update(newNom, newEmail string) {
+	if newNom != "" {
+		c.Nom = newNom
+	}
+	if newEmail != "" {
+		c.Email = newEmail
+	}
+}
+
 func main() {
 	contacts := make(map[int]*Contact)
 	nextID := 1
@@ -47,7 +56,6 @@ func main() {
 			email, _ := reader.ReadString('\n')
 			email = strings.TrimSpace(email)
 
-			// on stocke un pointeur
 			contacts[nextID] = &Contact{ID: nextID, Nom: nom, Email: email}
 			fmt.Println("Contact ajouté avec ID", nextID)
 			nextID++
@@ -92,13 +100,7 @@ func main() {
 				newEmail, _ := reader.ReadString('\n')
 				newEmail = strings.TrimSpace(newEmail)
 
-				if newNom != "" {
-					contact.Nom = newNom
-				}
-				if newEmail != "" {
-					contact.Email = newEmail
-				}
-
+				contact.Update(newNom, newEmail)
 				fmt.Println("Contact mis à jour.")
 			} else {
 				fmt.Println("Aucun contact trouvé avec cet ID.")
