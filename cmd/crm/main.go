@@ -6,12 +6,13 @@ import (
 	"os"
 	"strconv"
 	"strings"
+    "encoding/json"
 )
 
-type Contact struct {
-	ID    int
-	Nom   string
-	Email string
+type Contact struct {// encoder en minuscules
+    ID    int    `json:"id"`
+    Nom   string `json:"nom"`
+    Email string `json:"email"`
 }
 
 
@@ -20,20 +21,28 @@ file = "contacts.json"
 func readFile(file string) ([]Contact, error) {
 	data, err := os.ReadFile(file)
 	if err != nil {
-		log
+		log.Fatal(err)
 	}
 	var c Contact
-	json.Unmarshal(data, &c)
+	contacts = json.Unmarshal(data, &c)
+	return contacts, nil
 }
 
 func writeFile(file string, c Contact) error {
-	data, err := json.MarshalIndent(c, "", "  ")
+	data, _ := json.MarshalIndent(c, "", "  ")
 	os.writeFile(file, data, 0644)
+	return nil
 }
 
 func main() {
-	contacts := make(map[int]Contact)
-	nextID := 1
+	contacts, _ := readFile(file)
+
+    nextID := 1
+    for _, c := range contacts {
+        if c.ID >= nextID {
+            nextID = c.ID + 1
+        }
+    }
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -64,7 +73,10 @@ func main() {
 			email, _ := reader.ReadString('\n')
 			email = strings.TrimSpace(email)
 
-			contacts[nextID] = Contact{ID: nextID, Nom: nom, Email: email}
+            newContact := Contact{ID: nextID, Nom: nom, Email: email}
+            contacts = append(contacts, newContact)
+            writeFile(file, contacts)
+
 			fmt.Println("Contact ajouté avec ID", nextID)
 			nextID++
 
@@ -72,6 +84,8 @@ func main() {
 			fmt.Println("Liste des contacts :")
 			for _, c := range contacts {
 				fmt.Println(c.ID, c.Nom, c.Email)
+			readFile(file)
+			fmt.Println("Les contacts" contacts)
 			}
 
 		case 3:
@@ -83,12 +97,19 @@ func main() {
 				continue
 			}
 
-			if _, ok := contacts[id]; ok {
-				delete(contacts, id)
-				fmt.Println("Contact avec ID", id, "supprimé.")
-			} else {
-				fmt.Println("Aucun contact trouvé avec cet ID.")
-			}
+			found := false
+            for i, c := range contacts {
+                if c.ID == id {
+                    contacts = append(contacts[:i], contacts[i+1:]...)
+                    writeFile(file, contacts)
+                    fmt.Println("Contact avec ID", id, "supprimé.")
+                    found = true
+                    break
+                }
+            }
+            if !found {
+                fmt.Println("Aucun contact trouvé avec cet ID.")
+            }
 
 		case 4:
 			fmt.Print("ID du contact à mettre à jour : ")
@@ -99,27 +120,30 @@ func main() {
 				continue
 			}
 
-			if contact, ok := contacts[id]; ok {
-				fmt.Printf("Nom actuel : %s | Nouveau nom : ", contact.Nom)
-				newNom, _ := reader.ReadString('\n')
-				newNom = strings.TrimSpace(newNom)
+			updated := false
+            for i, c := range contacts {
+                if c.ID == id {
+                    fmt.Printf("Nom actuel : %s | Nouveau nom : ", c.Nom)
+                    newNom, _ := reader.ReadString('\n')
+                    newNom = strings.TrimSpace(newNom)
 
-				fmt.Printf("Email actuel : %s | Nouvel email : ", contact.Email)
-				newEmail, _ := reader.ReadString('\n')
-				newEmail = strings.TrimSpace(newEmail)
+                    fmt.Printf("Email actuel : %s | Nouvel email : ", c.Email)
+                    newEmail, _ := reader.ReadString('\n')
+                    newEmail = strings.TrimSpace(newEmail)
 
-				if newNom != "" {
-					contact.Nom = newNom
-				}
-				if newEmail != "" {
-					contact.Email = newEmail
-				}
-
-				contacts[id] = contact
-				fmt.Println("Contact mis à jour.")
-			} else {
-				fmt.Println("Aucun contact trouvé avec cet ID.")
-			}
+                    if newNom != "" {
+                        c.Nom = newNom
+                    }
+                    if newEmail != "" {
+                        c.Email = newEmail
+                    }
+                    contacts[i] = c
+                    writeFile(file, contacts)
+                    fmt.Println("Contact mis à jour.")
+                    updated = true
+                    break
+                }
+            }
 
 		case 5:
 			fmt.Println("Quitter")
