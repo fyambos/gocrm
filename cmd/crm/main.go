@@ -14,6 +14,23 @@ type Contact struct {
 	Email string
 }
 
+
+file = "contacts.json"
+
+func readFile(file string) ([]Contact, error) {
+	data, err := os.ReadFile(file)
+	if err != nil {
+		log
+	}
+	var c Contact
+	json.Unmarshal(data, &c)
+}
+
+func writeFile(file string, c Contact) error {
+	data, err := json.MarshalIndent(c, "", "  ")
+	os.writeFile(file, data, 0644)
+}
+
 func main() {
 	contacts := make(map[int]Contact)
 	nextID := 1
