@@ -6,43 +6,22 @@ import (
 	"os"
 	"strconv"
 	"strings"
-    "encoding/json"
+
+	"gocrm/internal/models"
+	"gocrm/internal/storage"
 )
 
-type Contact struct {// encoder en minuscules
-    ID    int    `json:"id"`
-    Nom   string `json:"nom"`
-    Email string `json:"email"`
-}
-
-
-file = "contacts.json"
-
-func readFile(file string) ([]Contact, error) {
-	data, err := os.ReadFile(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var c Contact
-	contacts = json.Unmarshal(data, &c)
-	return contacts, nil
-}
-
-func writeFile(file string, c Contact) error {
-	data, _ := json.MarshalIndent(c, "", "  ")
-	os.writeFile(file, data, 0644)
-	return nil
-}
+var file = "internal/contacts.json"
 
 func main() {
-	contacts, _ := readFile(file)
+	contacts, _ := storage.ReadFile(file)
 
-    nextID := 1
-    for _, c := range contacts {
-        if c.ID >= nextID {
-            nextID = c.ID + 1
-        }
-    }
+	nextID := 1
+	for _, c := range contacts {
+		if c.ID >= nextID {
+			nextID = c.ID + 1
+		}
+	}
 
 	reader := bufio.NewReader(os.Stdin)
 
@@ -73,9 +52,9 @@ func main() {
 			email, _ := reader.ReadString('\n')
 			email = strings.TrimSpace(email)
 
-            newContact := Contact{ID: nextID, Nom: nom, Email: email}
-            contacts = append(contacts, newContact)
-            writeFile(file, contacts)
+			newContact := models.Contact{ID: nextID, Nom: nom, Email: email}
+			contacts = append(contacts, newContact)
+			storage.WriteFile(file, contacts)
 
 			fmt.Println("Contact ajouté avec ID", nextID)
 			nextID++
@@ -84,8 +63,8 @@ func main() {
 			fmt.Println("Liste des contacts :")
 			for _, c := range contacts {
 				fmt.Println(c.ID, c.Nom, c.Email)
-			readFile(file)
-			fmt.Println("Les contacts" contacts)
+				storage.ReadFile(file)
+				fmt.Println("Les contacts", contacts)
 			}
 
 		case 3:
@@ -98,18 +77,18 @@ func main() {
 			}
 
 			found := false
-            for i, c := range contacts {
-                if c.ID == id {
-                    contacts = append(contacts[:i], contacts[i+1:]...)
-                    writeFile(file, contacts)
-                    fmt.Println("Contact avec ID", id, "supprimé.")
-                    found = true
-                    break
-                }
-            }
-            if !found {
-                fmt.Println("Aucun contact trouvé avec cet ID.")
-            }
+			for i, c := range contacts {
+				if c.ID == id {
+					contacts = append(contacts[:i], contacts[i+1:]...)
+					storage.WriteFile(file, contacts)
+					fmt.Println("Contact avec ID", id, "supprimé.")
+					found = true
+					break
+				}
+			}
+			if !found {
+				fmt.Println("Aucun contact trouvé avec cet ID.")
+			}
 
 		case 4:
 			fmt.Print("ID du contact à mettre à jour : ")
@@ -121,29 +100,32 @@ func main() {
 			}
 
 			updated := false
-            for i, c := range contacts {
-                if c.ID == id {
-                    fmt.Printf("Nom actuel : %s | Nouveau nom : ", c.Nom)
-                    newNom, _ := reader.ReadString('\n')
-                    newNom = strings.TrimSpace(newNom)
+			for i, c := range contacts {
+				if c.ID == id {
+					fmt.Printf("Nom actuel : %s | Nouveau nom : ", c.Nom)
+					newNom, _ := reader.ReadString('\n')
+					newNom = strings.TrimSpace(newNom)
 
-                    fmt.Printf("Email actuel : %s | Nouvel email : ", c.Email)
-                    newEmail, _ := reader.ReadString('\n')
-                    newEmail = strings.TrimSpace(newEmail)
+					fmt.Printf("Email actuel : %s | Nouvel email : ", c.Email)
+					newEmail, _ := reader.ReadString('\n')
+					newEmail = strings.TrimSpace(newEmail)
 
-                    if newNom != "" {
-                        c.Nom = newNom
-                    }
-                    if newEmail != "" {
-                        c.Email = newEmail
-                    }
-                    contacts[i] = c
-                    writeFile(file, contacts)
-                    fmt.Println("Contact mis à jour.")
-                    updated = true
-                    break
-                }
-            }
+					if newNom != "" {
+						c.Nom = newNom
+					}
+					if newEmail != "" {
+						c.Email = newEmail
+					}
+					contacts[i] = c
+					storage.WriteFile(file, contacts)
+					fmt.Println("Contact mis à jour.")
+					updated = true
+					break
+				}
+				if !updated {
+					fmt.Println("Aucun contact trouvé avec cet ID.")
+				}
+			}
 
 		case 5:
 			fmt.Println("Quitter")
