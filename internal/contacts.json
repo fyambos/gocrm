@@ -3,5 +3,10 @@
     "id": 2,
     "nom": "lola",
     "email": "lola"
+  },
+  {
+    "id": 3,
+    "nom": "lola",
+    "email": "lola"
   }
 ]
